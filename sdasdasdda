@@ -1,104 +1,11 @@
-import SwiftUI
-
-// MARK: - Button Variants
-enum ButtonVariant {
-    case primary
-    case secondary
-    case tertiary
-}
-
-// MARK: - Button States
-enum ButtonState {
-    case enabled
-    case disabled
-    case pressed
-}
-
-// MARK: - Button Styles
-struct ReassemblableButtonStyle: ButtonStyle {
-    var variant: ButtonVariant
-    var state: ButtonState
-    @Environment(\.colorScheme) private var colorScheme
-
-    func makeBody(configuration: Configuration) -> some View {
-        let isPressed = configuration.isPressed
-        let isEnabled = state == .enabled
-        let isDisabled = state == .disabled
-
-        return HStack {
-            if variant == .primary || variant == .secondary {
-                Image(systemName: "star.fill")
-            } else {
-                Image(systemName: "star")
-            }
-
-            Text(configuration.label)
-                .padding(.horizontal, 10)
-
-            if variant == .secondary || variant == .tertiary {
-                Image(systemName: "star.fill")
-            } else {
-                Image(systemName: "star")
-            }
+struct ContentView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            ReassemblableButton(variant: .primary)
+            ReassemblableButton(variant: .secondary)
+            ReassemblableButton(variant: .tertiary)
         }
         .padding()
-        .foregroundColor(getButtonForegroundColor())
-        .background(getButtonBackgroundColor())
-        .cornerRadius(10)
-        .opacity(isDisabled ? 0.5 : 1.0)
-        .scaleEffect(isPressed ? 0.9 : 1.0)
-        .animation(.spring())
-        .contentShape(Rectangle()) // Make the entire button area tappable
-        .disabled(isDisabled)
-    }
-
-    // MARK: - Helper Functions
-    private func getButtonForegroundColor() -> Color {
-        switch (variant, state, colorScheme) {
-        case (.primary, .enabled, .light):
-            return .white
-        case (.primary, .enabled, .dark):
-            return .black
-        case (.secondary, .enabled, _),
-             (.tertiary, .enabled, _):
-            return .blue
-        default:
-            return .gray
-        }
-    }
-
-    private func getButtonBackgroundColor() -> Color {
-        switch (variant, state, colorScheme) {
-        case (.primary, .enabled, _):
-            return .blue
-        case (.secondary, .enabled, _):
-            return .green
-        case (.tertiary, .enabled, _):
-            return .orange
-        default:
-            return .gray
-        }
-    }
-}
-
-// MARK: - ReassemblableButton View
-struct ReassemblableButton: View {
-    var variant: ButtonVariant
-    @State private var buttonState: ButtonState = .enabled
-
-    var body: some View {
-        Button(action: {
-            // Perform actions when the button is tapped
-            if buttonState == .enabled {
-                buttonState = .pressed
-                // Perform the desired action for the pressed state
-            } else {
-                buttonState = .enabled
-                // Perform the desired action for the enabled state
-            }
-        }) {
-            Text("Button Text")
-        }
-        .buttonStyle(ReassemblableButtonStyle(variant: variant, state: buttonState))
+        .background(Color(UIColor.systemBackground))
     }
 }
