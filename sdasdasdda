@@ -1,11 +1,49 @@
-struct ContentView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            ReassemblableButton(variant: .primary)
-            ReassemblableButton(variant: .secondary)
-            ReassemblableButton(variant: .tertiary)
+import SwiftUI
+
+enum AppColor {
+    enum Primary: String, CaseIterable {
+        case variant1
+        case variant2
+        case variant3
+        case variant4
+        case variant5
+
+        var color: Color {
+            switch self {
+            case .variant1:
+                return Color(red: 0.2, green: 0.4, blue: 0.6)
+            case .variant2:
+                return Color(red: 0.4, green: 0.6, blue: 0.8)
+            case .variant3:
+                return Color(red: 0.6, green: 0.8, blue: 1.0)
+            case .variant4:
+                return Color(red: 0.8, green: 1.0, blue: 1.2)
+            case .variant5:
+                return Color(red: 1.0, green: 1.2, blue: 1.4)
+            }
         }
-        .padding()
-        .background(Color(UIColor.systemBackground))
+    }
+
+    enum Secondary: String, CaseIterable {
+        case variant1
+        case variant2
+        case variant3
+        case variant4
+        case variant5
+
+        var color: Color {
+            switch self {
+            case .variant1:
+                return Color(red: 0.8, green: 0.2, blue: 0.2)
+            case .variant2:
+                return Color(red: 0.9, green: 0.4, blue: 0.4)
+            case .variant3:
+                return Color(red: 1.0, green: 0.6, blue: 0.6)
+            case .variant4:
+                return Color(red: 1.2, green: 0.8, blue: 0.8)
+            case .variant5:
+                return Color(red: 1.4, green: 1.0, blue: 1.0)
+            }
+        }
     }
 }
