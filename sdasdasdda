@@ -1,15 +1,31 @@
-extension Color {
-    enum AppColor {
-        static let primaryVariant1 = Color(red: 0.2, green: 0.4, blue: 0.6)
-        static let primaryVariant2 = Color(red: 0.4, green: 0.6, blue: 0.8)
-        static let primaryVariant3 = Color(red: 0.6, green: 0.8, blue: 1.0)
-        static let primaryVariant4 = Color(red: 0.8, green: 1.0, blue: 1.2)
-        static let primaryVariant5 = Color(red: 1.0, green: 1.2, blue: 1.4)
-
-        static let secondaryVariant1 = Color(red: 0.8, green: 0.2, blue: 0.2)
-        static let secondaryVariant2 = Color(red: 0.9, green: 0.4, blue: 0.4)
-        static let secondaryVariant3 = Color(red: 1.0, green: 0.6, blue: 0.6)
-        static let secondaryVariant4 = Color(red: 1.2, green: 0.8, blue: 0.8)
-        static let secondaryVariant5 = Color(red: 1.4, green: 1.0, blue: 1.0)
+private func leadingIconName(variant: ButtonVariant, state: ButtonState) -> String {
+        switch (variant, state, colorScheme) {
+        case (.primary, .enabled, .light):
+            return "star.fill"
+        case (.primary, .enabled, .dark):
+            return "star"
+        default:
+            return "star"
+        }
     }
-}
+    
+    private func trailingIconName(variant: ButtonVariant, state: ButtonState) -> String {
+        switch (variant, state, colorScheme) {
+        case (.secondary, .enabled, _):
+            return "heart.fill"
+        default:
+            return "heart"
+        }
+    }
+    
+    private func getIconForegroundColor() -> Color {
+        switch (variant, state, colorScheme) {
+        case (.primary, .enabled, .light),
+             (.secondary, .enabled, _):
+            return .yellow
+        case (.primary, .enabled, .dark):
+            return .orange
+        default:
+            return .gray
+        }
+    }
