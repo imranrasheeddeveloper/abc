@@ -1,105 +1,18 @@
 import SwiftUI
 
-enum AvatarVariant {
-    case icon(systemName: String)
-    case initials(firstName: String, lastName: String)
-    case photo(imageName: String)
-}
-
-enum AvatarShape {
-    case square
-    case round
-    case circle
-}
-
-enum AvatarSize {
-    case small
-    case medium
-    case large
-    
-    var dimension: CGFloat {
-        switch self {
-        case .small:
-            return 40
-        case .medium:
-            return 60
-        case .large:
-            return 80
-        }
-    }
-}
-
-struct Avatar: View {
-    var variant: AvatarVariant
-    var shape: AvatarShape
-    var size: AvatarSize
-    
-    var body: some View {
-        switch variant {
-        case .icon(let systemName):
-            Image(systemName: systemName)
-                .resizable()
-                .frame(width: size.dimension, height: size.dimension)
-                .clipShape(getShape())
-        case .initials(let firstName, let lastName):
-            Text(getInitials(firstName: firstName, lastName: lastName))
-                .font(.system(size: size.dimension * 0.4))
-                .frame(width: size.dimension, height: size.dimension)
-                .background(getShape().fill(Color.blue))
-                .foregroundColor(.white)
-        case .photo(let imageName):
-            Image(imageName)
-                .resizable()
-                .frame(width: size.dimension, height: size.dimension)
-                .clipShape(getShape())
-        }
-    }
-    
-    private func getInitials(firstName: String, lastName: String) -> String {
-        let firstInitial = firstName.prefix(1)
-        let lastInitial = lastName.prefix(1)
-        return "\(firstInitial)\(lastInitial)"
-    }
-    
-    private func getShape() -> AnyShape {
-        switch shape {
-        case .square:
-            return AnyShape(Rectangle())
-        case .round:
-            return AnyShape(RoundedRectangle(cornerRadius: 10))
-        case .circle:
-            return AnyShape(Circle())
-        }
-    }
-}
-
-struct AnyShape: Shape {
-    private let builder: (CGRect) -> Path
-    
-    init<S: Shape>(_ shape: S) {
-        self.builder = { rect in
-            let path = shape.path(in: rect)
-            return path
-        }
-    }
-    
-    func path(in rect: CGRect) -> Path {
-        return builder(rect)
-    }
-}
-
-struct AvatarView: View {
+struct ContentView: View {
     var body: some View {
         VStack(spacing: 20) {
             Avatar(variant: .icon(systemName: "person"), shape: .circle, size: .medium)
             Avatar(variant: .initials(firstName: "Imran", lastName: "Rasheed"), shape: .round, size: .medium)
             Avatar(variant: .photo(imageName: "profile_photo"), shape: .square, size: .medium)
         }
+        .padding()
     }
 }
 
-struct AvatarView_Previews: PreviewProvider {
+struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        AvatarView()
+        ContentView()
     }
 }
