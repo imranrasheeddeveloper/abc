@@ -1,18 +1,19 @@
-import SwiftUI
-
-struct ContentView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            Avatar(variant: .icon(systemName: "person"), shape: .circle, size: .medium)
-            Avatar(variant: .initials(firstName: "Imran", lastName: "Rasheed"), shape: .round, size: .medium)
-            Avatar(variant: .photo(imageName: "profile_photo"), shape: .square, size: .medium)
-        }
-        .padding()
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+if isOnline {
+                Circle()
+                    .frame(width: size.dimension * 0.3, height: size.dimension * 0.3)
+                    .foregroundColor(.green)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white, lineWidth: 2)
+                    )
+                    .position(x: size.dimension * 0.85, y: -size.dimension * 0.15) // Top right
+            } else {
+                Circle()
+                    .frame(width: size.dimension * 0.3, height: size.dimension * 0.3)
+                    .foregroundColor(.gray)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white, lineWidth: 2)
+                    )
+                    .position(x: size.dimension * 0.85, y: -size.dimension * 0.15) // Top right
+            }
