@@ -14,43 +14,45 @@ struct AlertBanner: View {
     @Binding var isPresented: Bool
     
     var body: some View {
-        HStack(spacing: 12) {
-            getIconImage()
-                .foregroundColor(getIconColor())
-            
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(title.prefix(65))  // Limit title to 65 characters
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .lineLimit(1)
-                    Spacer()
-                    Button(action: {
-                        withAnimation {
-                            isPresented = false
-                        }
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
+        VStack(spacing: 8) {
+            HStack {
+                getIconImage()
+                    .foregroundColor(getIconColor())
+                
+                Text(title.prefix(65))  // Limit title to 65 characters
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .lineLimit(1)
+                
+                Spacer()
+                
+                Button(action: {
+                    withAnimation {
+                        isPresented = false
                     }
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
                 }
-                Text(description.prefix(113))  // Limit description to 113 characters
-                    .font(.subheadline)
-                    .lineLimit(2)
-                if let actionButtonTitle = actionButtonTitle {
-                    Button(action: {
-                        onActionButtonTap?()
-                        withAnimation {
-                            isPresented = false
-                        }
-                    }) {
-                        Text(actionButtonTitle)
-                            .foregroundColor(.white)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 16)
-                            .background(Color.blue)
-                            .cornerRadius(8)
+            }
+            
+            Text(description.prefix(113))  // Limit description to 113 characters
+                .font(.subheadline)
+                .lineLimit(2)
+            
+            if let actionButtonTitle = actionButtonTitle {
+                Button(action: {
+                    onActionButtonTap?()
+                    withAnimation {
+                        isPresented = false
                     }
+                }) {
+                    Text(actionButtonTitle)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 16)
+                        .background(Color.blue)
+                        .cornerRadius(8)
                 }
             }
         }
@@ -117,6 +119,11 @@ struct ContentView: View {
             }
         }
         .alert(isPresented: $showAlert) {
+            Alert(title: Text(""),
+                  message: Text(""),
+                  dismissButton: .none)
+        }
+        .background(
             AlertBanner(variant: .error,
                         title: "This is a very long title that exceeds the specified character limit of 65 characters and needs to be truncated.",
                         description: "This is an error message that exceeds the specified character limit for the description. Please shorten the description.",
@@ -125,7 +132,8 @@ struct ContentView: View {
                             // Action to perform on button tap
                         },
                         isPresented: $showAlert)
-        }
+                .padding()
+        )
     }
 }
 
