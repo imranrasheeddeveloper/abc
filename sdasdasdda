@@ -1,19 +1,91 @@
-if isOnline {
-                Circle()
-                    .frame(width: size.dimension * 0.3, height: size.dimension * 0.3)
-                    .foregroundColor(.green)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white, lineWidth: 2)
-                    )
-                    .position(x: size.dimension * 0.85, y: -size.dimension * 0.15) // Top right
-            } else {
-                Circle()
-                    .frame(width: size.dimension * 0.3, height: size.dimension * 0.3)
-                    .foregroundColor(.gray)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white, lineWidth: 2)
-                    )
-                    .position(x: size.dimension * 0.85, y: -size.dimension * 0.15) // Top right
+import SwiftUI
+
+struct AlertBanner: View {
+    enum Variant {
+        case base, error, warn, info, success
+    }
+    
+    let variant: Variant
+    let title: String
+    let description: String
+    let actionButtonTitle: String?
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text(title.prefix(65))  // Limit title to 65 characters
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .lineLimit(1)
+                Spacer()
+                Button(action: {}) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                }
             }
+            Text(description.prefix(113))  // Limit description to 113 characters
+                .font(.subheadline)
+                .lineLimit(2)
+            if let actionButtonTitle = actionButtonTitle {
+                Button(action: {
+                    // Perform your action here (e.g., performAction())
+                    // Then close the alert
+                }) {
+                    Text(actionButtonTitle)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 16)
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                }
+            }
+        }
+        .padding()
+        .background(getBackgroundColor())
+        .cornerRadius(12)
+        .shadow(radius: 4)
+        .padding(.horizontal)
+    }
+    
+    private func getBackgroundColor() -> Color {
+        switch variant {
+        case .base:
+            return Color.gray
+        case .error:
+            return Color.red
+        case .warn:
+            return Color.yellow
+        case .info:
+            return Color.blue
+        case .success:
+            return Color.green
+        }
+    }
+}
+
+struct ContentView: View {
+    @State private var showAlert = false
+    
+    var body: some View {
+        VStack {
+            Button("Show Alert Banner") {
+                showAlert = true
+            }
+        }
+        .alert(isPresented: $showAlert) {
+            AlertBanner(variant: .error,
+                        title: "This is a very long title that exceeds the specified character limit of 65 characters and needs to be truncated.",
+                        description: "This is an error message that exceeds the specified character limit for the description. Please shorten the description.",
+                        actionButtonTitle: "Close")
+        }
+    }
+}
+
+@main
+struct AlertBannerApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
