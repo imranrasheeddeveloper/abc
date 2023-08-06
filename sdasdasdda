@@ -9,34 +9,48 @@ struct AlertBanner: View {
     let title: String
     let description: String
     let actionButtonTitle: String?
+    let onActionButtonTap: (() -> Void)?
+    
+    @Binding var isPresented: Bool
     
     var body: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text(title.prefix(65))  // Limit title to 65 characters
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .lineLimit(1)
-                Spacer()
-                Button(action: {}) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
+        HStack(spacing: 12) {
+            getIconImage()
+                .foregroundColor(getIconColor())
+            
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(title.prefix(65))  // Limit title to 65 characters
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .lineLimit(1)
+                    Spacer()
+                    Button(action: {
+                        withAnimation {
+                            isPresented = false
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
                 }
-            }
-            Text(description.prefix(113))  // Limit description to 113 characters
-                .font(.subheadline)
-                .lineLimit(2)
-            if let actionButtonTitle = actionButtonTitle {
-                Button(action: {
-                    // Perform your action here (e.g., performAction())
-                    // Then close the alert
-                }) {
-                    Text(actionButtonTitle)
-                        .foregroundColor(.white)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 16)
-                        .background(Color.blue)
-                        .cornerRadius(8)
+                Text(description.prefix(113))  // Limit description to 113 characters
+                    .font(.subheadline)
+                    .lineLimit(2)
+                if let actionButtonTitle = actionButtonTitle {
+                    Button(action: {
+                        onActionButtonTap?()
+                        withAnimation {
+                            isPresented = false
+                        }
+                    }) {
+                        Text(actionButtonTitle)
+                            .foregroundColor(.white)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+                            .background(Color.blue)
+                            .cornerRadius(8)
+                    }
                 }
             }
         }
@@ -45,6 +59,36 @@ struct AlertBanner: View {
         .cornerRadius(12)
         .shadow(radius: 4)
         .padding(.horizontal)
+    }
+    
+    private func getIconImage() -> Image {
+        switch variant {
+        case .base:
+            return Image(systemName: "info.circle")
+        case .error:
+            return Image(systemName: "exclamationmark.circle")
+        case .warn:
+            return Image(systemName: "exclamationmark.triangle")
+        case .info:
+            return Image(systemName: "info.circle")
+        case .success:
+            return Image(systemName: "checkmark.circle")
+        }
+    }
+    
+    private func getIconColor() -> Color {
+        switch variant {
+        case .base:
+            return Color.blue
+        case .error:
+            return Color.red
+        case .warn:
+            return Color.yellow
+        case .info:
+            return Color.blue
+        case .success:
+            return Color.green
+        }
     }
     
     private func getBackgroundColor() -> Color {
@@ -76,7 +120,11 @@ struct ContentView: View {
             AlertBanner(variant: .error,
                         title: "This is a very long title that exceeds the specified character limit of 65 characters and needs to be truncated.",
                         description: "This is an error message that exceeds the specified character limit for the description. Please shorten the description.",
-                        actionButtonTitle: "Close")
+                        actionButtonTitle: "Retry",
+                        onActionButtonTap: {
+                            // Action to perform on button tap
+                        },
+                        isPresented: $showAlert)
         }
     }
 }
