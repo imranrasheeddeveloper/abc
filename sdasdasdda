@@ -1,147 +1,167 @@
+//
+//  ContentView.swift
+//  Componetns
+//
+//  Created by apple on 8/7/23.
+//
+
 import SwiftUI
 
-struct AlertBanner: View {
+
+struct SnackbarModel {
     enum Variant {
         case base, error, warn, info, success
     }
     
     let variant: Variant
+    let leadingIcon: Image
     let title: String
     let description: String
-    let actionButtonTitle: String?
-    let onActionButtonTap: (() -> Void)?
+    let actionText: String?
+    let action: (() -> Void)?
+}
+
+struct SnackbarView: View {
+    let model: SnackbarModel
     
-    @Binding var isPresented: Bool
+    private var backgroundColor: Color {
+        switch model.variant {
+            case .base: return Color.gray.opacity(0.2)
+            case .error: return Color.red.opacity(0.8)
+            case .warn: return Color.yellow.opacity(0.8)
+            case .info: return Color.blue.opacity(0.8)
+            case .success: return Color.green.opacity(0.8)
+        }
+    }
     
     var body: some View {
-        VStack(spacing: 8) {
-            HStack {
-                getIconImage()
-                    .foregroundColor(getIconColor())
-                
-                Text(title.prefix(65))  // Limit title to 65 characters
+        HStack {
+            model.leadingIcon
+                .font(.system(size: 24))
+                .padding(.trailing, 8)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(model.title)
                     .font(.headline)
-                    .fontWeight(.bold)
                     .lineLimit(1)
+                Text(model.description)
+                    .font(.subheadline)
+                    .lineLimit(2)
+            }
+            .layoutPriority(1)
+            
+            Spacer()
+            
+            if let actionText = model.actionText {
+               
+                    Text(actionText)
+                        .font(.subheadline)
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .cornerRadius(4)
                 
-                Spacer()
-                
-                Button(action: {
-                    withAnimation {
-                        isPresented = false
-                    }
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                }
             }
             
-            Text(description.prefix(113))  // Limit description to 113 characters
-                .font(.subheadline)
-                .lineLimit(2)
-            
-            if let actionButtonTitle = actionButtonTitle {
-                Button(action: {
-                    onActionButtonTap?()
-                    withAnimation {
-                        isPresented = false
-                    }
-                }) {
-                    Text(actionButtonTitle)
-                        .foregroundColor(.white)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 16)
-                        .background(Color.blue)
-                        .cornerRadius(8)
-                }
+            Button(action: {
+                model.action?()
+            }) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(.white)
             }
         }
         .padding()
-        .background(getBackgroundColor())
-        .cornerRadius(12)
-        .shadow(radius: 4)
-        .padding(.horizontal)
-    }
-    
-    private func getIconImage() -> Image {
-        switch variant {
-        case .base:
-            return Image(systemName: "info.circle")
-        case .error:
-            return Image(systemName: "exclamationmark.circle")
-        case .warn:
-            return Image(systemName: "exclamationmark.triangle")
-        case .info:
-            return Image(systemName: "info.circle")
-        case .success:
-            return Image(systemName: "checkmark.circle")
-        }
-    }
-    
-    private func getIconColor() -> Color {
-        switch variant {
-        case .base:
-            return Color.blue
-        case .error:
-            return Color.red
-        case .warn:
-            return Color.yellow
-        case .info:
-            return Color.blue
-        case .success:
-            return Color.green
-        }
-    }
-    
-    private func getBackgroundColor() -> Color {
-        switch variant {
-        case .base:
-            return Color.gray
-        case .error:
-            return Color.red
-        case .warn:
-            return Color.yellow
-        case .info:
-            return Color.blue
-        case .success:
-            return Color.green
-        }
-    }
-}
-
-struct ContentView: View {
-    @State private var showAlert = false
-    
-    var body: some View {
-        VStack {
-            Button("Show Alert Banner") {
-                showAlert = true
-            }
-        }
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text(""),
-                  message: Text(""),
-                  dismissButton: .none)
-        }
+        .frame(width: 397, height: 68)
         .background(
-            AlertBanner(variant: .error,
-                        title: "This is a very long title that exceeds the specified character limit of 65 characters and needs to be truncated.",
-                        description: "This is an error message that exceeds the specified character limit for the description. Please shorten the description.",
-                        actionButtonTitle: "Retry",
-                        onActionButtonTap: {
-                            // Action to perform on button tap
-                        },
-                        isPresented: $showAlert)
-                .padding()
+            RoundedRectangle(cornerRadius: 8)
+                .fill(backgroundColor)
         )
     }
 }
 
-@main
-struct AlertBannerApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
+
+
+
+struct SnackbarViewWrapper: View {
+    @Binding var isPresented: Bool
+    let model: SnackbarModel
+    
+    var body: some View {
+        if isPresented {
+            SnackbarView(model: model)
+                .onTapGesture {
+                    withAnimation {
+                        isPresented = false
+                    }
+                }
         }
+    }
+}
+
+
+extension View {
+    func snackbar(isPresented: Binding<Bool>, model: Binding<SnackbarModel?>) -> some View {
+        self.modifier(SnackbarModifier(isPresented: isPresented, model: model))
+    }
+}
+
+struct SnackbarModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    @Binding var model: SnackbarModel?
+    
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                Group {
+                    if let model = model {
+                        VStack {
+                            Spacer()
+                            SnackbarViewWrapper(isPresented: $isPresented, model: model)
+                                .transition(.move(edge: .bottom))
+                                .animation(.easeInOut(duration: 0.3))
+                        }
+                        .edgesIgnoringSafeArea(.bottom)
+                    }
+                }
+            )
+    }
+}
+
+struct ContentView: View {
+    @State private var snackbarIsVisible = false
+    @State private var snackbarModel: SnackbarModel? = nil
+    
+    var body: some View {
+        VStack {
+            Button("Show Snackbar") {
+                let model = SnackbarModel(
+                    variant: .warn,
+                    leadingIcon: Image(systemName: "exclamationmark.triangle.fill"),
+                    title: "Warning",
+                    description: "This is a warning message.",
+                    actionText: "OK",
+                    action: {
+                        // Handle action
+                    }
+                )
+                // Display Snackbar
+                snackbarModel = model
+                snackbarIsVisible = true
+                
+                // Automatically dismiss after a delay (e.g., 3 seconds)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    snackbarIsVisible = false
+                }
+            }
+            .padding()
+        }
+        .snackbar(isPresented: $snackbarIsVisible, model: $snackbarModel)
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
     }
 }
