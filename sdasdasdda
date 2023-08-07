@@ -1,23 +1,19 @@
-struct RoundBadge: View {
-    var style: String
-    var number: Int?
+struct NotificationIcon: View {
+    var iconName: String
+    var badgeStyle: String
+    var badgeNumber: Int?
     
     var body: some View {
-        Group {
-            if style == "small" {
-                Color.red
-                    .frame(width: 20, height: 20)
-                    .cornerRadius(10)
-            } else if style == "number", let number = number {
-                ZStack {
-                    Color.red
-                        .frame(width: 30, height: 30)
-                        .cornerRadius(15)
-                    
-                    Text("\(number)")
-                        .foregroundColor(.white)
-                        .font(.system(size: 14, weight: .bold))
-                }
+        ZStack {
+            Image(systemName: iconName)
+                .font(.system(size: 30))
+            
+            if let badgeNumber = badgeNumber {
+                RoundBadge(style: badgeStyle, number: badgeNumber)
+                    .offset(x: 15, y: -15)
+            } else if badgeStyle == "small" {
+                RoundBadge(style: badgeStyle)
+                    .offset(x: 15, y: -15)
             }
         }
     }
@@ -26,8 +22,8 @@ struct RoundBadge: View {
 struct ContentView: View {
     var body: some View {
         VStack(spacing: 20) {
-            RoundBadge(style: "small")
-            RoundBadge(style: "number", number: 2)
+            NotificationIcon(iconName: "bell", badgeStyle: "small")
+            NotificationIcon(iconName: "bell", badgeStyle: "number", badgeNumber: 2)
         }
     }
 }
