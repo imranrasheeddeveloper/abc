@@ -1,35 +1,13 @@
-struct NotificationIcon: View {
-    var iconName: String
-    var badgeStyle: String
-    var badgeNumber: Int?
-    
-    var body: some View {
-        ZStack {
-            Image(systemName: iconName)
-                .font(.system(size: 30))
-            
-            if let badgeNumber = badgeNumber {
-                RoundBadge(style: badgeStyle, number: badgeNumber)
-                    .offset(x: 15, y: -15)
-            } else if badgeStyle == "small" {
-                RoundBadge(style: badgeStyle)
-                    .offset(x: 15, y: -15)
+GeometryReader { geometry in
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: iconName)
+                    .font(.system(size: 30))
+                
+                if let badgeNumber = badgeNumber {
+                    RoundBadge(style: badgeStyle, number: badgeNumber)
+                        .offset(x: geometry.size.width / 2, y: -geometry.size.height / 2)
+                } else if badgeStyle == "small" {
+                    RoundBadge(style: badgeStyle)
+                        .offset(x: geometry.size.width / 2, y: -geometry.size.height / 2)
+                }
             }
-        }
-    }
-}
-
-struct ContentView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            NotificationIcon(iconName: "bell", badgeStyle: "small")
-            NotificationIcon(iconName: "bell", badgeStyle: "number", badgeNumber: 2)
-        }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
