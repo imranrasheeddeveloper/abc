@@ -1,13 +1,27 @@
-GeometryReader { geometry in
-            ZStack(alignment: .topTrailing) {
-                Image(systemName: iconName)
-                    .font(.system(size: 30))
-                
-                if let badgeNumber = badgeNumber {
-                    RoundBadge(style: badgeStyle, number: badgeNumber)
-                        .offset(x: geometry.size.width / 2, y: -geometry.size.height / 2)
-                } else if badgeStyle == "small" {
-                    RoundBadge(style: badgeStyle)
-                        .offset(x: geometry.size.width / 2, y: -geometry.size.height / 2)
+struct RoundBadge: View {
+    var style: String
+    var number: Int?
+    
+    var body: some View {
+        Group {
+            if style == "small" {
+                Color.red
+                    .frame(width: 20, height: 20)
+                    .cornerRadius(10)
+                    .overlay(RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.white, lineWidth: 3)
+                                        )
+            } else if style == "number", let number = number {
+                ZStack {
+                    Color.red
+                        .frame(width: 30, height: 30)
+                        .cornerRadius(15)
+                    
+                    Text("\(number)")
+                        .foregroundColor(.white)
+                        .font(.system(size: 14, weight: .bold))
                 }
             }
+        }
+    }
+}
