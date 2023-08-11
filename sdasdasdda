@@ -1,27 +1,85 @@
-struct RoundBadge: View {
-    var style: String
-    var number: Int?
-    
+import SwiftUI
+
+struct ActivityView: View {
     var body: some View {
-        Group {
-            if style == "small" {
-                Color.red
-                    .frame(width: 20, height: 20)
-                    .cornerRadius(10)
-                    .overlay(RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.white, lineWidth: 3)
-                                        )
-            } else if style == "number", let number = number {
-                ZStack {
-                    Color.red
-                        .frame(width: 30, height: 30)
-                        .cornerRadius(15)
-                    
-                    Text("\(number)")
-                        .foregroundColor(.white)
-                        .font(.system(size: 14, weight: .bold))
+        VStack(spacing: 0) {
+            Spacer()
+            RoundedRectangle(cornerRadius: 10)
+                .frame(width: 60, height: 6)
+                .foregroundColor(Color.gray)
+                .padding(.top, 8)
+            
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Title")
+                    .font(.headline)
+                Text("Subtitle")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        ForEach(0..<5) { _ in
+                            Image(systemName: "person.circle")
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                                .padding(8)
+                                .background(Color.blue.opacity(0.2))
+                                .clipShape(Circle())
+                        }
+                    }
+                    .padding(.horizontal)
                 }
+                
+                Divider()
+                
+                List {
+                    ForEach(0..<10, id: \.self) { index in
+                        HStack {
+                            Image(systemName: "doc.circle")
+                                .font(.title3)
+                            Text("Item \(index)")
+                                .font(.subheadline)
+                        }
+                    }
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                }
+                .listStyle(PlainListStyle())
             }
+            .padding(.horizontal)
+            
+            Spacer()
         }
+        .background(Color.white)
+        .cornerRadius(20)
+        .shadow(radius: 10)
+        .frame(maxHeight: .infinity, alignment: .bottom)
+
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    if value.translation.height < 0 {
+                        // Handle your dismissal logic here
+                    }
+                }
+        )
     }
 }
+
+
+struct ContentView: View {
+   
+    var body: some View {
+        VStack {
+            ActivityView()
+        }
+        
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
