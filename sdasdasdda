@@ -1,81 +1,141 @@
 import SwiftUI
 
-struct ActivityView: View {
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            RoundedRectangle(cornerRadius: 10)
-                .frame(width: 60, height: 6)
-                .foregroundColor(Color.gray)
-                .padding(.top, 8)
-            
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Title")
-                    .font(.headline)
-                Text("Subtitle")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
-                        ForEach(0..<5) { _ in
-                            Image(systemName: "person.circle")
-                                .resizable()
-                                .frame(width: 40, height: 40)
-                                .padding(8)
-                                .background(Color.blue.opacity(0.2))
-                                .clipShape(Circle())
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                
-                Divider()
-                
-                List {
-                    ForEach(0..<10, id: \.self) { index in
-                        HStack {
-                            Image(systemName: "doc.circle")
-                                .font(.title3)
-                            Text("Item \(index)")
-                                .font(.subheadline)
-                        }
-                    }
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                }
-                .listStyle(PlainListStyle())
-            }
-            .padding(.horizontal)
-            
-            Spacer()
-        }
-        .background(Color.white)
-        .cornerRadius(20)
-        .shadow(radius: 10)
-        .frame(maxHeight: .infinity, alignment: .bottom)
-
-        .gesture(
-            DragGesture()
-                .onChanged { value in
-                    if value.translation.height < 0 {
-                        // Handle your dismissal logic here
-                    }
-                }
-        )
-    }
+enum ChipStatus: String {
+    case active, inactive, alert, warning, info
 }
 
+struct ChipView: View {
+    var status: ChipStatus?
+    var leadingIcon: String?
+    var text: String
+    var trailingIcon: String?
+    var isTrailingClickable: Bool = false
+    var onTap: (() -> Void)?
+    
+    enum ChipState {
+        case active, pressed, elevated
+    }
+    
+    @State private var chipState: ChipState = .active
+
+    private var chipSize: CGFloat {
+        return 36 // Set the desired size for the chip
+    }
+
+    private var backgroundColor: Color {
+        if chipState == .active {
+            if let status = status {
+                switch status {
+                case .active: return .green
+                case .inactive: return .gray
+                case .alert: return .red
+                case .warning: return .yellow
+                case .info: return .blue
+                }
+            } else {
+                return Color.gray.opacity(0.1)
+            }
+        } else if chipState == .pressed {
+            return Color.blue
+        } else if chipState == .elevated {
+            return Color.gray.opacity(0.5)
+        } else {
+            return Color.clear
+        }
+    }
+
+    private var textColor: Color {
+        if chipState == .active {
+            return chipState == .pressed ? .white : .white
+        } else {
+            return .black
+        }
+    }
+
+    private var iconColor: Color {
+        if chipState == .active {
+            return chipState == .pressed ? .white : .white
+        } else {
+            return .gray
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            if let leadingIcon = leadingIcon {
+                Image(systemName: leadingIcon)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundColor(iconColor)
+                    .frame(width: 12 , height: 12)
+                    .background(backgroundColor)
+                    .clipShape(Circle())
+            }
+
+            Text(text)
+                .foregroundColor(textColor)
+                .font(.caption)
+                .background(backgroundColor)
+                .cornerRadius(16)
+
+            if let trailingIcon = trailingIcon {
+                Spacer()
+
+                if isTrailingClickable {
+                    Button(action: {
+                        onTap?()
+                    }) {
+                        Image(systemName: trailingIcon)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 12, height: 12)
+                            .foregroundColor(.blue)
+                            .background(backgroundColor)
+                            .clipShape(Circle())
+                    }
+                } else {
+                    Image(systemName: trailingIcon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 12, height: 12)
+                        .foregroundColor(.gray)
+                        .background(backgroundColor)
+                        .clipShape(Circle())
+                        .onTapGesture {
+                            chipState = .pressed
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                chipState = .active
+                            }
+                        }
+                }
+            }
+        }
+        .frame(width: 84 , height: 24)
+        .padding(8)
+        .background(backgroundColor)
+        .cornerRadius(16)
+        .shadow(radius: chipState == .elevated ? 2 : 1)
+    }
+}
 
 struct ContentView: View {
-   
     var body: some View {
-        VStack {
-            ActivityView()
+        VStack(spacing: 16) {
+            ChipView(status: .active, leadingIcon: "checkmark.circle.fill", text: "Active")
+            ChipView(status: .inactive, leadingIcon: "xmark.circle.fill", text: "Inactive")
+            ChipView(status: .alert, leadingIcon: "exclamationmark.triangle.fill", text: "Alert")
+            ChipView(status: .warning, leadingIcon: "exclamationmark.circle.fill", text: "Warning")
+            ChipView(status: .info, leadingIcon: "info.circle.fill", text: "Info")
+            
+            ChipView(leadingIcon: "star.fill", text: "Favorite", trailingIcon: "xmark.circle", isTrailingClickable: true, onTap: {
+                print("Trailing icon tapped!")
+            })
         }
-        
+        .padding()
     }
 }
+
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
