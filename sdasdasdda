@@ -1,145 +1,17 @@
-import SwiftUI
-
-enum ChipStatus: String {
-    case active, inactive, alert, warning, info
-}
-
-struct ChipView: View {
-    var status: ChipStatus?
-    var leadingIcon: String?
-    var text: String
-    var trailingIcon: String?
-    var isTrailingClickable: Bool = false
-    var onTap: (() -> Void)?
+struct ElevationModifier: ViewModifier {
+    var shouldApply: Bool
     
-    enum ChipState {
-        case active, pressed, elevated
-    }
-    
-    @State private var chipState: ChipState = .active
-
-    private var chipSize: CGFloat {
-        return 36 // Set the desired size for the chip
-    }
-
-    private var backgroundColor: Color {
-        if chipState == .active {
-            if let status = status {
-                switch status {
-                case .active: return .green
-                case .inactive: return .gray
-                case .alert: return .red
-                case .warning: return .yellow
-                case .info: return .blue
-                }
-            } else {
-                return Color.gray.opacity(0.1)
-            }
-        } else if chipState == .pressed {
-            return Color.blue
-        } else if chipState == .elevated {
-            return Color.gray.opacity(0.5)
+    func body(content: Content) -> some View {
+        if shouldApply {
+            return content.addElevation()
         } else {
-            return Color.clear
+            return content
         }
-    }
-
-    private var textColor: Color {
-        if chipState == .active {
-            return chipState == .pressed ? .white : .white
-        } else {
-            return .black
-        }
-    }
-
-    private var iconColor: Color {
-        if chipState == .active {
-            return chipState == .pressed ? .white : .white
-        } else {
-            return .gray
-        }
-    }
-
-    var body: some View {
-        HStack(spacing: 8) {
-            if let leadingIcon = leadingIcon {
-                Image(systemName: leadingIcon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .foregroundColor(iconColor)
-                    .frame(width: 12 , height: 12)
-                    .background(backgroundColor)
-                    .clipShape(Circle())
-            }
-
-            Text(text)
-                .foregroundColor(textColor)
-                .font(.caption)
-                .background(backgroundColor)
-                .cornerRadius(16)
-
-            if let trailingIcon = trailingIcon {
-                Spacer()
-
-                if isTrailingClickable {
-                    Button(action: {
-                        onTap?()
-                    }) {
-                        Image(systemName: trailingIcon)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 12, height: 12)
-                            .foregroundColor(.blue)
-                            .background(backgroundColor)
-                            .clipShape(Circle())
-                    }
-                } else {
-                    Image(systemName: trailingIcon)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 12, height: 12)
-                        .foregroundColor(.gray)
-                        .background(backgroundColor)
-                        .clipShape(Circle())
-                        .onTapGesture {
-                            chipState = .pressed
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                chipState = .active
-                            }
-                        }
-                }
-            }
-        }
-        .frame(width: 84 , height: 24)
-        .padding(8)
-        .background(backgroundColor)
-        .cornerRadius(16)
-        .shadow(radius: chipState == .elevated ? 2 : 1)
     }
 }
 
-struct ContentView: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            ChipView(status: .active, leadingIcon: "checkmark.circle.fill", text: "Active")
-            ChipView(status: .inactive, leadingIcon: "xmark.circle.fill", text: "Inactive")
-            ChipView(status: .alert, leadingIcon: "exclamationmark.triangle.fill", text: "Alert")
-            ChipView(status: .warning, leadingIcon: "exclamationmark.circle.fill", text: "Warning")
-            ChipView(status: .info, leadingIcon: "info.circle.fill", text: "Info")
-            
-            ChipView(leadingIcon: "star.fill", text: "Favorite", trailingIcon: "xmark.circle", isTrailingClickable: true, onTap: {
-                print("Trailing icon tapped!")
-            })
-        }
-        .padding()
+extension View {
+    func elevation(when shouldApply: Bool) -> some View {
+        self.modifier(ElevationModifier(shouldApply: shouldApply))
     }
 }
-
-
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
-
