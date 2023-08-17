@@ -1,17 +1,1 @@
-struct ElevationModifier: ViewModifier {
-    var shouldApply: Bool
-    
-    func body(content: Content) -> some View {
-        if shouldApply {
-            return content.addElevation()
-        } else {
-            return content
-        }
-    }
-}
-
-extension View {
-    func elevation(when shouldApply: Bool) -> some View {
-        self.modifier(ElevationModifier(shouldApply: shouldApply))
-    }
-}
+.shadow(color: .yellow.opacity(0.9), radius: 10, x: 0, y: 5)
